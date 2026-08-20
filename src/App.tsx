@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import { seedDatabase } from './db/db';
 import { Dashboard } from './features/dashboard/Dashboard';
 import { RoutineSelection } from './features/routines/RoutineSelection';
+import { WorkoutHub } from './features/workout/WorkoutHub';
 
 function App() {
   const [isReady, setIsReady] = useState(false);
@@ -39,6 +40,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/routines" element={<RoutineSelection />} />
+        <Route path="/workout/:id" element={<WorkoutHub />} />
       </Routes>
     </div>
   );

@@ -1,7 +1,7 @@
-import { useLiveQuery } from 'dexie-react-hooks';
-import { ArrowLeft, Play } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { db } from '../../db/db';
+import { useLiveQuery } from "dexie-react-hooks";
+import { ArrowLeft, Play } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { db } from "../../db/db";
 
 export function RoutineSelection() {
   const navigate = useNavigate();
@@ -11,8 +11,8 @@ export function RoutineSelection() {
   return (
     <div className="flex flex-col gap-6 w-full max-w-md mx-auto pb-10 pt-4">
       <header className="flex items-center gap-4">
-        <button 
-          onClick={() => navigate(-1)} 
+        <button
+          onClick={() => navigate(-1)}
           className="p-2 bg-slate-800 rounded-full text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
         >
           <ArrowLeft size={24} />
@@ -22,17 +22,37 @@ export function RoutineSelection() {
 
       <section className="flex flex-col gap-4">
         {!routines ? (
-          <p className="text-slate-400 text-center mt-10">Cargando rutinas...</p>
+          <p className="text-slate-400 text-center mt-10">
+            Cargando rutinas...
+          </p>
         ) : routines.length === 0 ? (
-          <p className="text-slate-400 text-center mt-10">No hay rutinas creadas.</p>
+          <p className="text-slate-400 text-center mt-10">
+            No hay rutinas creadas.
+          </p>
         ) : (
           routines.map((routine) => (
             <button
               key={routine.id}
-              onClick={() => console.log('Próximo paso: Iniciar rutina', routine.id)}
+              onClick={async () => {
+                // 1. Generamos un ID único para este entrenamiento
+                const newWorkoutId = crypto.randomUUID();
+
+                // 2. Lo guardamos en IndexedDB con la fecha y hora actual
+                await db.workouts.add({
+                  id: newWorkoutId,
+                  routineId: routine.id,
+                  date: new Date().toISOString().split("T")[0],
+                  startTime: Date.now(),
+                });
+
+                // 3. Navegamos al Hub usando el nuevo ID
+                navigate(`/workout/${newWorkoutId}`);
+              }}
               className="bg-slate-800 p-6 rounded-3xl flex items-center justify-between hover:bg-slate-700 active:bg-slate-700 transition-colors shadow-sm"
             >
-              <span className="text-lg font-semibold text-white">{routine.name}</span>
+              <span className="text-lg font-semibold text-white">
+                {routine.name}
+              </span>
               <div className="bg-blue-500/10 p-3 rounded-full">
                 <Play fill="currentColor" size={20} className="text-blue-500" />
               </div>
