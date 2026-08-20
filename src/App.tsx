@@ -4,6 +4,8 @@ import { seedDatabase } from './db/db';
 import { Dashboard } from './features/dashboard/Dashboard';
 import { RoutineSelection } from './features/routines/RoutineSelection';
 import { WorkoutHub } from './features/workout/WorkoutHub';
+import { ExerciseSelection } from './features/workout/ExerciseSelection';
+import { ActiveExercise } from './features/workout/ActiveExercise';
 
 function App() {
   const [isReady, setIsReady] = useState(false);
@@ -41,6 +43,8 @@ function App() {
         <Route path="/" element={<Dashboard />} />
         <Route path="/routines" element={<RoutineSelection />} />
         <Route path="/workout/:id" element={<WorkoutHub />} />
+        <Route path="/workout/:id/muscle/:muscleId" element={<ExerciseSelection />} />
+        <Route path="/workout/:id/exercise/:workoutExerciseId" element={<ActiveExercise />} />
       </Routes>
     </div>
   );

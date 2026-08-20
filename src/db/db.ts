@@ -68,8 +68,8 @@ export async function seedDatabase() {
     { id: 'rg4', routineId: 'r1', muscleGroupId: 'm7', exerciseCount: 2 }
   ];
 
-  await db.muscleGroups.bulkAdd(muscles);
-  await db.exercises.bulkAdd(exercises);
-  await db.routines.bulkAdd(routines);
-  await db.routineGroups.bulkAdd(routineGroups);
+  await db.muscleGroups.bulkPut(muscles);
+  await db.exercises.bulkPut(exercises);
+  await db.routines.bulkPut(routines);
+  await db.routineGroups.bulkPut(routineGroups);
 }
