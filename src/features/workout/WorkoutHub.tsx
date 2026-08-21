@@ -26,11 +26,29 @@ export function WorkoutHub() {
 
   if (!data) return <div className="text-slate-400 p-6 text-center mt-10 animate-pulse">Cargando entrenamiento...</div>;
 
-  const { routine, routineGroups, muscleGroups, workoutExercises } = data;
+  const { workout, routine, routineGroups, muscleGroups, workoutExercises } = data;
 
   // Cálculos de progreso total
   const totalExercisesTarget = routineGroups.reduce((acc, rg) => acc + rg.exerciseCount, 0);
   const completedExercisesCount = workoutExercises.filter(we => we.completed).length;
+
+  // Función para terminar el entrenamiento y calcular el tiempo
+  const finishWorkout = async () => {
+    if (!workout) return;
+    
+    const endTime = Date.now();
+    // Calculamos la duración en segundos
+    const durationInSeconds = Math.floor((endTime - workout.startTime) / 1000);
+
+    // Actualizamos el registro en la base de datos
+    await db.workouts.update(id!, {
+      endTime: endTime,
+      duration: durationInSeconds
+    });
+
+    // Te enviamos de vuelta a la pantalla principal
+    navigate('/');
+  };
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-md mx-auto pb-24 pt-4">
@@ -84,7 +102,7 @@ export function WorkoutHub() {
       {/* Botón Finalizar */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-slate-950 via-slate-950 to-transparent">
         <button 
-          onClick={() => console.log('Finalizar')}
+          onClick={finishWorkout}
           className="w-full max-w-md mx-auto bg-slate-800 text-white font-bold py-4 rounded-2xl hover:bg-slate-700 active:bg-slate-600 transition-colors border border-slate-700 block"
         >
           Finalizar entrenamiento
