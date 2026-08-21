@@ -6,6 +6,7 @@ import { RoutineSelection } from './features/routines/RoutineSelection';
 import { WorkoutHub } from './features/workout/WorkoutHub';
 import { ExerciseSelection } from './features/workout/ExerciseSelection';
 import { ActiveExercise } from './features/workout/ActiveExercise';
+import { WorkoutSummary } from './features/history/WorkoutSummary';
 
 function App() {
   const [isReady, setIsReady] = useState(false);
@@ -45,6 +46,7 @@ function App() {
         <Route path="/workout/:id" element={<WorkoutHub />} />
         <Route path="/workout/:id/muscle/:muscleId" element={<ExerciseSelection />} />
         <Route path="/workout/:id/exercise/:workoutExerciseId" element={<ActiveExercise />} />
+        <Route path="/history/:id" element={<WorkoutSummary />} />
       </Routes>
     </div>
   );

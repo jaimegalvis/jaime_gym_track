@@ -53,6 +53,15 @@ export function Dashboard() {
             recentWorkouts.map((workout, index) => (
               <button
                 key={workout.id}
+                onClick={() => {
+                if (workout.duration) {
+                  // Si tiene duración, ya terminó: vamos al resumen histórico
+                  navigate(`/history/${workout.id}`);
+                } else {
+                  // Si no tiene duración, sigue en progreso: volvemos a la sesión activa
+                  navigate(`/workout/${workout.id}`);
+                }
+              }}
                 className={`flex items-center justify-between p-5 text-left hover:bg-slate-700 active:bg-slate-700 transition-colors ${
                   index !== recentWorkouts.length - 1
                     ? "border-b border-slate-700/50"
