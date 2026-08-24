@@ -6,7 +6,7 @@ export interface MuscleGroup {
 export interface Exercise {
   id: string;
   name: string;
-  muscleGroupId: string;
+  muscleGroupIds: string[];
   equipment?: string;
   notes?: string;
 }

@@ -78,7 +78,8 @@ export function WorkoutHub() {
           return (
             <button
               key={rg.id}
-              onClick={() => navigate(`/workout/${id}/muscle/${rg.muscleGroupId}`)}
+              // onClick={() => navigate(`/workout/${id}/muscle/${rg.muscleGroupId}`)}
+              onClick={() => navigate(`/workout/${id}/select-exercise/${rg.muscleGroupId}`)}
               className={`p-5 rounded-3xl flex items-center justify-between transition-colors shadow-sm ${
                 isFullyCompleted ? 'bg-green-900/20 border border-green-900/50' : 'bg-slate-800 hover:bg-slate-700 active:bg-slate-700'
               }`}

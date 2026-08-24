@@ -1,5 +1,5 @@
 import { useLiveQuery } from "dexie-react-hooks";
-import { Play, Calendar, ChevronRight, Activity } from "lucide-react";
+import { Play, Calendar, ChevronRight, Activity, BookOpen } from "lucide-react";
 import { db } from "../../db/db";
 import { useNavigate } from "react-router-dom";
 
@@ -25,14 +25,25 @@ export function Dashboard() {
 
       {/* Botón Principal (Grande y fácil de tocar) */}
       <section>
-        <button onClick={() => navigate('/routines')}
-        className="w-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white rounded-3xl p-8 flex flex-col items-center justify-center gap-4 transition-all shadow-lg shadow-blue-900/30">
+        <button
+          onClick={() => navigate("/routines")}
+          className="w-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white rounded-3xl p-8 flex flex-col items-center justify-center gap-4 transition-all shadow-lg shadow-blue-900/30"
+        >
           <div className="bg-white/20 p-5 rounded-full">
             <Play fill="currentColor" size={40} className="ml-2" />
           </div>
           <span className="text-2xl font-bold tracking-wide">
             Iniciar Entrenamiento
           </span>
+        </button>
+      </section>
+      <section>
+        <button
+          onClick={() => navigate("/library")}
+          className="w-full bg-slate-800 text-slate-300 p-4 rounded-2xl flex items-center justify-center gap-3 hover:bg-slate-700 transition-colors border border-slate-700"
+        >
+          <BookOpen size={20} className="text-slate-400" />
+          <span className="font-semibold">Mi Biblioteca</span>
         </button>
       </section>
 
@@ -54,14 +65,14 @@ export function Dashboard() {
               <button
                 key={workout.id}
                 onClick={() => {
-                if (workout.duration) {
-                  // Si tiene duración, ya terminó: vamos al resumen histórico
-                  navigate(`/history/${workout.id}`);
-                } else {
-                  // Si no tiene duración, sigue en progreso: volvemos a la sesión activa
-                  navigate(`/workout/${workout.id}`);
-                }
-              }}
+                  if (workout.duration) {
+                    // Si tiene duración, ya terminó: vamos al resumen histórico
+                    navigate(`/history/${workout.id}`);
+                  } else {
+                    // Si no tiene duración, sigue en progreso: volvemos a la sesión activa
+                    navigate(`/workout/${workout.id}`);
+                  }
+                }}
                 className={`flex items-center justify-between p-5 text-left hover:bg-slate-700 active:bg-slate-700 transition-colors ${
                   index !== recentWorkouts.length - 1
                     ? "border-b border-slate-700/50"

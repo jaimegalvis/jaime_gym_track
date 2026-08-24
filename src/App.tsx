@@ -7,6 +7,9 @@ import { WorkoutHub } from './features/workout/WorkoutHub';
 import { ExerciseSelection } from './features/workout/ExerciseSelection';
 import { ActiveExercise } from './features/workout/ActiveExercise';
 import { WorkoutSummary } from './features/history/WorkoutSummary';
+import { RoutineForm } from './features/routines/RoutineForm';
+import { Library } from './features/library/Library';
+import { ExerciseCatalog } from './features/library/ExerciseCatalog';
 
 function App() {
   const [isReady, setIsReady] = useState(false);
@@ -45,8 +48,12 @@ function App() {
         <Route path="/routines" element={<RoutineSelection />} />
         <Route path="/workout/:id" element={<WorkoutHub />} />
         <Route path="/workout/:id/muscle/:muscleId" element={<ExerciseSelection />} />
-        <Route path="/workout/:id/exercise/:workoutExerciseId" element={<ActiveExercise />} />
+        {/* <Route path="/workout/:id/exercise/:workoutExerciseId" element={<ActiveExercise />} /> */}
+        <Route path="/workout/:workoutId/select-exercise/:muscleGroupId" element={<ExerciseSelection />} />
         <Route path="/history/:id" element={<WorkoutSummary />} />
+        <Route path="/routines/new" element={<RoutineForm />} />
+        <Route path="/library" element={<Library />} />
+        <Route element={<ExerciseCatalog />} path="/library/exercises" />
       </Routes>
     </div>
   );
