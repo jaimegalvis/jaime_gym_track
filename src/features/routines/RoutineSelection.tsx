@@ -1,5 +1,5 @@
 import { useLiveQuery } from "dexie-react-hooks";
-import { ArrowLeft, Play, Plus } from "lucide-react";
+import { ArrowLeft, Play } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { db } from "../../db/db";
 

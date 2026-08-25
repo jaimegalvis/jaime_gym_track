@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../db/db';
-import { ArrowLeft, Plus, Save, Dumbbell, X } from 'lucide-react';
+import { ArrowLeft, Plus, Save, Dumbbell } from 'lucide-react';
 
 export function ExerciseCatalog() {
   const navigate = useNavigate();
