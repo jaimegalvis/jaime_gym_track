@@ -37,9 +37,8 @@ export function ExerciseSelection() {
       completed: false
     });
 
-    // Te llevaremos a la pantalla final de registrar series (próximo paso)
-    console.log('Próximo paso: Anotar series para el id:', workoutExerciseId);
-    // navigate(`/workout/${workoutId}/track/${workoutExerciseId}`);
+    // pantalla final de registrar series 
+    navigate(`/workout/${workoutId}/track/${workoutExerciseId}`);
   };
 
   if (!data) return <div className="p-6 text-slate-400 text-center mt-10">Cargando...</div>;

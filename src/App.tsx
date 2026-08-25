@@ -49,6 +49,7 @@ function App() {
         <Route path="/workout/:id" element={<WorkoutHub />} />
         <Route path="/workout/:id/muscle/:muscleId" element={<ExerciseSelection />} />
         {/* <Route path="/workout/:id/exercise/:workoutExerciseId" element={<ActiveExercise />} /> */}
+        <Route path="/workout/:id/track/:workoutExerciseId" element={<ActiveExercise />} />
         <Route path="/workout/:workoutId/select-exercise/:muscleGroupId" element={<ExerciseSelection />} />
         <Route path="/history/:id" element={<WorkoutSummary />} />
         <Route path="/routines/new" element={<RoutineForm />} />
