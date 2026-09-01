@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Dumbbell, ClipboardList, Plus } from 'lucide-react';
+import { ArrowLeft, Dumbbell, ClipboardList } from 'lucide-react';
 
 export function Library() {
   const navigate = useNavigate();
