@@ -10,6 +10,7 @@ import { WorkoutSummary } from './features/history/WorkoutSummary';
 import { RoutineForm } from './features/routines/RoutineForm';
 import { Library } from './features/library/Library';
 import { ExerciseCatalog } from './features/library/ExerciseCatalog';
+import { RoutineManager } from './features/library/RoutineManager';
 
 function App() {
   const [isReady, setIsReady] = useState(false);
@@ -53,8 +54,10 @@ function App() {
         <Route path="/workout/:workoutId/select-exercise/:muscleGroupId" element={<ExerciseSelection />} />
         <Route path="/history/:id" element={<WorkoutSummary />} />
         <Route path="/routines/new" element={<RoutineForm />} />
+        <Route path="/routines/:id/edit" element={<RoutineForm />} />
         <Route path="/library" element={<Library />} />
         <Route element={<ExerciseCatalog />} path="/library/exercises" />
+        <Route path="/library/routines" element={<RoutineManager />} />
       </Routes>
     </div>
   );

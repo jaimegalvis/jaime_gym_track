@@ -15,7 +15,7 @@ export function Dashboard() {
       {/* Encabezado */}
       <header className="flex justify-between items-center pt-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Hola, Jaime</h1>
+          <h1 className="text-2xl font-bold text-white">Hola, Gakusei</h1>
           <p className="text-slate-400 text-sm">¿Qué entrenamos hoy?</p>
         </div>
         <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center text-blue-500 shadow-inner">

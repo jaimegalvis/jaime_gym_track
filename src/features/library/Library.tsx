@@ -27,12 +27,11 @@ export function Library() {
             Diseña nuevas rutinas de entrenamiento o modifica las que ya tienes.
           </p>
           <button 
-            onClick={() => navigate('/routines/new')}
+            onClick={() => navigate('/library/routines')}
             className="bg-blue-500/10 text-blue-400 py-3 rounded-xl font-medium hover:bg-blue-500/20 transition-colors flex items-center justify-center gap-2"
-          >
-            <Plus size={20} />
-            Crear nueva rutina
-          </button>
+            >
+            Gestionar rutinas
+            </button>
         </div>
 
         {/* Tarjeta de Ejercicios */}
