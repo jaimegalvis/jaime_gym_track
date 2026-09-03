@@ -11,6 +11,7 @@ import { RoutineForm } from './features/routines/RoutineForm';
 import { Library } from './features/library/Library';
 import { ExerciseCatalog } from './features/library/ExerciseCatalog';
 import { RoutineManager } from './features/library/RoutineManager';
+import { Profile } from './features/profile/Profile';
 
 function App() {
   const [isReady, setIsReady] = useState(false);
@@ -58,6 +59,7 @@ function App() {
         <Route path="/library" element={<Library />} />
         <Route element={<ExerciseCatalog />} path="/library/exercises" />
         <Route path="/library/routines" element={<RoutineManager />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </div>
   );

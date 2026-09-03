@@ -9,18 +9,23 @@ export function Dashboard() {
   const recentWorkouts = useLiveQuery(() =>
     db.workouts.orderBy("date").reverse().limit(5).toArray(),
   );
+  const profile = useLiveQuery(() => db.userProfile.get('me'));
 
   return (
-    <div className="flex flex-col gap-8 w-full max-w-md mx-auto pb-10">
-      {/* Encabezado */}
-      <header className="flex justify-between items-center pt-4">
+    <div className="flex flex-col gap-6 w-full max-w-md mx-auto pb-10 pt-4">
+      <header className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-white">Hola, Gakusei</h1>
-          <p className="text-slate-400 text-sm">¿Qué entrenamos hoy?</p>
+          {/* Leemos el nombre del perfil, o mostramos "Atleta" si aún está cargando */}
+          <h1 className="text-2xl font-bold text-white">Hola, {profile?.name || 'Atleta'}</h1>
+          <p className="text-slate-400">¿Qué entrenamos hoy?</p>
         </div>
-        <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center text-blue-500 shadow-inner">
+        {/* Conectamos el botón para que vaya a tu perfil */}
+        <button 
+          onClick={() => navigate('/profile')} 
+          className="p-3 bg-slate-800 rounded-2xl text-yellow-400 hover:bg-slate-700 transition-colors"
+        >
           <Activity size={24} />
-        </div>
+        </button>
       </header>
 
       {/* Botón Principal (Grande y fácil de tocar) */}
