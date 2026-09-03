@@ -5,11 +5,8 @@ export interface MuscleGroup { id: string; name: string; }
 export interface Exercise { id: string; name: string; muscleGroupIds: string[]; }
 export interface Routine { id: string; name: string; }
 export interface RoutineGroup { id: string; routineId: string; muscleGroupId: string; exerciseCount: number; }
-export interface Workout { id: string; date: string; name: string; }
-export interface WorkoutExercise { id: string; workoutId: string; exerciseId: string; completed: boolean; }
 export interface Set { id: string; workoutExerciseId: string; setNumber: number; weight: number; reps: number; unit: string; completed: boolean; }
 
-// NUEVO: Interfaz para tu Perfil
 export interface UserProfile {
   id: string;
   name: string;
@@ -17,6 +14,24 @@ export interface UserProfile {
   height: number | '';
   weightUnit: 'kg' | 'lb';
   goal: string;
+}
+
+export interface Workout { 
+  id: string; 
+  date: string; 
+  name: string; 
+  duration?: number;
+  routineId?: string;
+  startTime?: number;
+  endTime?: number;
+}
+
+export interface WorkoutExercise { 
+  id: string; 
+  workoutId: string; 
+  exerciseId: string; 
+  completed: boolean; 
+  muscleGroupId?: string;
 }
 
 // 2. Configuración de la Base de Datos
