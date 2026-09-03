@@ -12,7 +12,7 @@ export function WorkoutSummary() {
     const workout = await db.workouts.get(id);
     if (!workout) return null;
     
-    const routine = await db.routines.get(workout.routineId);
+      const routine = useLiveQuery(() => db.routines.get(workout?.routineId || ''));
     
     // Obtenemos todos los ejercicios realizados en este entrenamiento
     const workoutExercises = await db.workoutExercises.where('workoutId').equals(id).toArray();

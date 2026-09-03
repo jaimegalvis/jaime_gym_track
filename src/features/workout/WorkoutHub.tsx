@@ -14,8 +14,8 @@ export function WorkoutHub() {
     const workout = await db.workouts.get(id);
     if (!workout) return null;
     
-    const routine = await db.routines.get(workout.routineId);
-    const routineGroups = await db.routineGroups.where('routineId').equals(workout.routineId).toArray();
+    const routine = useLiveQuery(() => db.routines.get(workout?.routineId || ''));
+const routineGroups = useLiveQuery(() => db.routineGroups.where('routineId').equals(workout?.routineId || '').toArray());
     const muscleGroups = await db.muscleGroups.toArray();
     
     // Ejercicios que el usuario vaya completando en esta sesión
@@ -29,7 +29,7 @@ export function WorkoutHub() {
   const { workout, routine, routineGroups, muscleGroups, workoutExercises } = data;
 
   // Cálculos de progreso total
-  const totalExercisesTarget = routineGroups.reduce((acc, rg) => acc + rg.exerciseCount, 0);
+  const totalExercisesTarget = routineGroups?.reduce((acc, rg) => acc + rg.exerciseCount, 0) || 0;
   const completedExercisesCount = workoutExercises.filter(we => we.completed).length;
 
   // Función para terminar el entrenamiento y calcular el tiempo
@@ -38,7 +38,7 @@ export function WorkoutHub() {
     
     const endTime = Date.now();
     // Calculamos la duración en segundos
-    const durationInSeconds = Math.floor((endTime - workout.startTime) / 1000);
+    const durationInSeconds = Math.floor((endTime - (workout?.startTime || 0)) / 1000);
 
     // Actualizamos el registro en la base de datos
     await db.workouts.update(id!, {
@@ -70,7 +70,7 @@ export function WorkoutHub() {
       <section className="flex flex-col gap-4">
         <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">Grupos Musculares</h2>
         
-        {routineGroups.map((rg) => {
+        {routineGroups?.map((rg) => {
           const muscle = muscleGroups.find(m => m.id === rg.muscleGroupId);
           const completedForThisMuscle = workoutExercises.filter(we => we.muscleGroupId === rg.muscleGroupId && we.completed).length;
           const isFullyCompleted = completedForThisMuscle >= rg.exerciseCount;

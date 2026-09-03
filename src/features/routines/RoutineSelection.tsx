@@ -41,6 +41,7 @@ export function RoutineSelection() {
                 await db.workouts.add({
                   id: newWorkoutId,
                   routineId: routine.id,
+                  name: routine.name,
                   date: new Date().toISOString().split("T")[0],
                   startTime: Date.now(),
                 });
