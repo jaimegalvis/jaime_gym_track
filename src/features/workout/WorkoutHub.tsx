@@ -10,15 +10,13 @@ export function WorkoutHub() {
   // Obtenemos todos los datos necesarios para esta sesión de entrenamiento
   const data = useLiveQuery(async () => {
     if (!id) return null;
-    
+
     const workout = await db.workouts.get(id);
     if (!workout) return null;
-    
-    const routine = useLiveQuery(() => db.routines.get(workout?.routineId || ''));
-const routineGroups = useLiveQuery(() => db.routineGroups.where('routineId').equals(workout?.routineId || '').toArray());
+
+    const routine = await db.routines.get(workout.routineId || '');
+    const routineGroups = await db.routineGroups.where('routineId').equals(workout.routineId || '').toArray();
     const muscleGroups = await db.muscleGroups.toArray();
-    
-    // Ejercicios que el usuario vaya completando en esta sesión
     const workoutExercises = await db.workoutExercises.where('workoutId').equals(id).toArray();
 
     return { workout, routine, routineGroups, muscleGroups, workoutExercises };
