@@ -4,44 +4,58 @@ import { db } from '../../db/db';
 import { ArrowLeft, ChevronRight, Dumbbell } from 'lucide-react';
 
 export function ExerciseSelection() {
-  // Extraemos ambos IDs de la URL
   const { workoutId, muscleGroupId } = useParams();
   const navigate = useNavigate();
 
-  // Buscamos el nombre del músculo y filtramos los ejercicios
+  // 1. OBTENER DATOS 
   const data = useLiveQuery(async () => {
-    if (!muscleGroupId) return null;
+    if (!muscleGroupId || !workoutId) return null;
     
     const muscle = await db.muscleGroups.get(muscleGroupId);
     
-    // Aquí ocurre la magia de Dexie: busca dentro de los arreglos automáticamente
     const availableExercises = await db.exercises
       .where('muscleGroupIds')
       .equals(muscleGroupId)
       .toArray();
 
-    return { muscle, availableExercises };
-  }, [muscleGroupId]);
+    // Buscamos qué ejercicios ya se agregaron a este entrenamiento
+    const currentWorkoutExercises = await db.workoutExercises
+      .where('workoutId')
+      .equals(workoutId)
+      .toArray();
 
+    return { muscle, availableExercises, currentWorkoutExercises };
+  }, [muscleGroupId, workoutId]);
+
+  // 2. FUNCIÓN INTELIGENTE DE SELECCIÓN
   const handleSelectExercise = async (exerciseId: string) => {
-    if (!workoutId || !muscleGroupId) return;
+    if (!workoutId || !muscleGroupId || !data) return;
 
-    const workoutExerciseId = crypto.randomUUID();
-    
-    // Registramos que vas a hacer este ejercicio en la sesión de hoy
-    await db.workoutExercises.add({
-      id: workoutExerciseId,
-      workoutId: workoutId,
-      exerciseId: exerciseId,
-      muscleGroupId: muscleGroupId,
-      completed: false
-    });
+    // Verificamos si este ejercicio ya existe en la sesión actual
+    const existingExercise = data.currentWorkoutExercises.find(we => we.exerciseId === exerciseId);
 
-    // pantalla final de registrar series 
-    navigate(`/workout/${workoutId}/track/${workoutExerciseId}`);
+    let targetWorkoutExerciseId;
+
+    if (existingExercise) {
+      // Si ya existe, NO creamos basura nueva, reutilizamos el ID para poder editarlo
+      targetWorkoutExerciseId = existingExercise.id;
+    } else {
+      // Si es la primera vez que lo tocamos hoy, creamos el registro
+      targetWorkoutExerciseId = crypto.randomUUID();
+      await db.workoutExercises.add({
+        id: targetWorkoutExerciseId,
+        workoutId: workoutId,
+        exerciseId: exerciseId,
+        muscleGroupId: muscleGroupId,
+        completed: false
+      });
+    }
+
+    // Navegamos a la pantalla de series usando el ID correcto
+    navigate(`/workout/${workoutId}/track/${targetWorkoutExerciseId}`);
   };
 
-  if (!data) return <div className="p-6 text-slate-400 text-center mt-10">Cargando...</div>;
+  if (!data) return <div className="p-6 text-slate-400 text-center mt-10 animate-pulse">Cargando...</div>;
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-md mx-auto pb-10 pt-4">
@@ -66,18 +80,35 @@ export function ExerciseSelection() {
             <p className="text-sm text-slate-500">Ve a tu Biblioteca para añadir nuevos.</p>
           </div>
         ) : (
-          data.availableExercises.map((exercise) => (
-            <button
-              key={exercise.id}
-              onClick={() => handleSelectExercise(exercise.id)}
-              className="bg-slate-800 p-5 rounded-2xl flex items-center justify-between hover:bg-slate-700 active:bg-slate-700 transition-colors shadow-sm"
-            >
-              <span className="text-lg font-semibold text-white">{exercise.name}</span>
-              <div className="bg-slate-700 p-2 rounded-full">
-                <ChevronRight size={20} className="text-slate-300" />
-              </div>
-            </button>
-          ))
+          data.availableExercises.map((exercise) => {
+            // 3. VALIDACIÓN VISUAL
+            const currentWE = data.currentWorkoutExercises.find(we => we.exerciseId === exercise.id);
+            const isCompleted = currentWE?.completed;
+
+            return (
+              <button
+                key={exercise.id}
+                onClick={() => handleSelectExercise(exercise.id)}
+                className={`w-full p-5 rounded-2xl flex items-center justify-between transition-all shadow-sm ${
+                  isCompleted 
+                    ? 'bg-slate-800 border border-green-500/50 hover:bg-slate-700' 
+                    : 'bg-slate-800 border border-transparent hover:bg-slate-700 active:bg-slate-700'
+                }`}
+              >
+                <span className="text-lg font-semibold text-white">{exercise.name}</span>
+                
+                {isCompleted ? (
+                  <span className="text-xs text-green-400 font-bold bg-green-400/10 px-3 py-1.5 rounded-lg flex items-center gap-1">
+                    Completado ✓
+                  </span>
+                ) : (
+                  <div className="bg-slate-700 p-2 rounded-full">
+                    <ChevronRight size={20} className="text-slate-300" />
+                  </div>
+                )}
+              </button>
+            );
+          })
         )}
       </section>
     </div>

@@ -31,21 +31,28 @@ export function WorkoutHub() {
   const completedExercisesCount = workoutExercises.filter(we => we.completed).length;
 
   // Función para terminar el entrenamiento y calcular el tiempo
-  const finishWorkout = async () => {
-    if (!workout) return;
+  const handleFinishWorkout = async () => {
+    // A. Buscar ejercicios vacíos de esta sesión
+    const currentExercises = await db.workoutExercises.where('workoutId').equals(workout.id).toArray();
     
-    const endTime = Date.now();
-    // Calculamos la duración en segundos
-    const durationInSeconds = Math.floor((endTime - (workout?.startTime || 0)) / 1000);
+    for (const exercise of currentExercises) {
+      const sets = await db.sets.where('workoutExerciseId').equals(exercise.id).toArray();
+      if (sets.length === 0) {
+        await db.workoutExercises.delete(exercise.id); // ¡Basura eliminada!
+      }
+    }
 
-    // Actualizamos el registro en la base de datos
-    await db.workouts.update(id!, {
+    // B. Calcular la duración y actualizar el entrenamiento
+    const endTime = Date.now();
+    const durationInSeconds = Math.floor((endTime - (workout.startTime || endTime)) / 1000);
+    
+    await db.workouts.update(workout.id, {
       endTime: endTime,
       duration: durationInSeconds
     });
 
-    // Te enviamos de vuelta a la pantalla principal
-    navigate('/');
+    // C. Navegar al resumen
+    navigate(`/history/${workout.id}`, { replace: true });
   };
 
   return (
@@ -101,7 +108,7 @@ export function WorkoutHub() {
       {/* Botón Finalizar */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-slate-950 via-slate-950 to-transparent">
         <button 
-          onClick={finishWorkout}
+          onClick={handleFinishWorkout}
           className="w-full max-w-md mx-auto bg-slate-800 text-white font-bold py-4 rounded-2xl hover:bg-slate-700 active:bg-slate-600 transition-colors border border-slate-700 block"
         >
           Finalizar entrenamiento
