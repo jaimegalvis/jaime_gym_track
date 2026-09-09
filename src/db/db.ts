@@ -98,12 +98,18 @@ export async function seedDatabase() {
     goal: 'Hipertrofia'
   });
 
-  // NUEVO: Rutinas Clásicas Pre-cargadas
-  const r1 = crypto.randomUUID();
-  const r2 = crypto.randomUUID();
-  const r3 = crypto.randomUUID();
-  const r4 = crypto.randomUUID();
-  const r5 = crypto.randomUUID();
+  // Rutinas Clásicas Pre-cargadas
+  // const r1 = crypto.randomUUID();
+  // const r2 = crypto.randomUUID();
+  // const r3 = crypto.randomUUID();
+  // const r4 = crypto.randomUUID();
+  // const r5 = crypto.randomUUID();
+  
+  const r1 ='rutina-1'
+  const r2 = 'rutina-2'
+  const r3 = 'rutina-3'
+  const r4 = 'rutina-4'
+  const r5 = 'rutina-5'
 
   const routines: Routine[] = [
     { id: r1, name: 'Push (Empuje)' },
@@ -115,24 +121,24 @@ export async function seedDatabase() {
 
   const routineGroups: RoutineGroup[] = [
     // Push
-    { id: crypto.randomUUID(), routineId: r1, muscleGroupId: 'm1', exerciseCount: 3 },
-    { id: crypto.randomUUID(), routineId: r1, muscleGroupId: 'm3', exerciseCount: 2 },
-    { id: crypto.randomUUID(), routineId: r1, muscleGroupId: 'm5', exerciseCount: 2 },
+    { id: 'rutina-formada-1', routineId: r1, muscleGroupId: 'm1', exerciseCount: 3 },
+    { id: 'rutina-formada-2', routineId: r1, muscleGroupId: 'm3', exerciseCount: 2 },
+    { id: 'rutina-formada-3', routineId: r1, muscleGroupId: 'm5', exerciseCount: 2 },
     // Pull
-    { id: crypto.randomUUID(), routineId: r2, muscleGroupId: 'm2', exerciseCount: 3 },
-    { id: crypto.randomUUID(), routineId: r2, muscleGroupId: 'm4', exerciseCount: 2 },
+    { id: 'rutina-formada-4', routineId: r2, muscleGroupId: 'm2', exerciseCount: 3 },
+    { id: 'rutina-formada-5', routineId: r2, muscleGroupId: 'm4', exerciseCount: 2 },
     // Piernas
-    { id: crypto.randomUUID(), routineId: r3, muscleGroupId: 'm6', exerciseCount: 2 },
-    { id: crypto.randomUUID(), routineId: r3, muscleGroupId: 'm8', exerciseCount: 2 },
-    { id: crypto.randomUUID(), routineId: r3, muscleGroupId: 'm9', exerciseCount: 1 },
-    { id: crypto.randomUUID(), routineId: r3, muscleGroupId: 'm10', exerciseCount: 1 },
+    { id: 'rutina-formada-6', routineId: r3, muscleGroupId: 'm6', exerciseCount: 2 },
+    { id: 'rutina-formada-7', routineId: r3, muscleGroupId: 'm8', exerciseCount: 2 },
+    { id: 'rutina-formada-8', routineId: r3, muscleGroupId: 'm9', exerciseCount: 1 },
+    { id: 'rutina-formada-9', routineId: r3, muscleGroupId: 'm10', exerciseCount: 1 },
     // Arnold A (Pecho + Espalda)
-    { id: crypto.randomUUID(), routineId: r4, muscleGroupId: 'm1', exerciseCount: 3 },
-    { id: crypto.randomUUID(), routineId: r4, muscleGroupId: 'm2', exerciseCount: 3 },
+    { id: 'rutina-formada-10', routineId: r4, muscleGroupId: 'm1', exerciseCount: 3 },
+    { id: 'rutina-formada-11', routineId: r4, muscleGroupId: 'm2', exerciseCount: 3 },
     // Arnold B (Hombros + Brazos)
-    { id: crypto.randomUUID(), routineId: r5, muscleGroupId: 'm3', exerciseCount: 3 },
-    { id: crypto.randomUUID(), routineId: r5, muscleGroupId: 'm4', exerciseCount: 2 },
-    { id: crypto.randomUUID(), routineId: r5, muscleGroupId: 'm5', exerciseCount: 2 }
+    { id: 'rutina-formada-12', routineId: r5, muscleGroupId: 'm3', exerciseCount: 3 },
+    { id: 'rutina-formada-13', routineId: r5, muscleGroupId: 'm4', exerciseCount: 2 },
+    { id: 'rutina-formada-14', routineId: r5, muscleGroupId: 'm5', exerciseCount: 2 }
   ];
 
   await db.muscleGroups.bulkPut(muscles);
