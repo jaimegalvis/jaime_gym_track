@@ -3,10 +3,18 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { ArrowLeft, Check, Trash2 } from 'lucide-react';
 import { db } from '../../db/db';
+import { saveWorkoutSession } from '../../utils/session';
 
 export function ActiveExercise() {
   const { id, workoutExerciseId } = useParams();
   const navigate = useNavigate();
+
+  // Guardamos la sesión activa en este ejercicio específico
+  useEffect(() => {
+    if (id && workoutExerciseId) {
+      saveWorkoutSession(id, `/workout/${id}/track/${workoutExerciseId}`);
+    }
+  }, [id, workoutExerciseId]);
 
   // Memoria temporal para la "Fila Borrador"
   const [draftWeight, setDraftWeight] = useState<number | string>('');
@@ -37,7 +45,7 @@ export function ActiveExercise() {
   }, [data?.sets?.length]); // Solo se ejecuta si cambia la CANTIDAD de series
 
   if (!data) return <div className="text-slate-400 p-6 text-center mt-10 animate-pulse">Cargando...</div>;
-  const { exercise, sets } = data;
+  const { exercise, sets, workoutExercise } = data;
 
   const deleteSet = async (setId: string) => {
     await db.sets.delete(setId);
@@ -57,16 +65,42 @@ export function ActiveExercise() {
     // Al guardarla en BD, la pantalla se refresca sola y el useEffect prepara la próxima fila
   };
 
+  const handleBack = async () => {
+    // Si no se registró ninguna serie, eliminamos este ejercicio para no dejar registros vacíos
+    if (workoutExerciseId && sets.length === 0) {
+      await db.workoutExercises.delete(workoutExerciseId);
+    }
+    if (id && workoutExercise?.muscleGroupId) {
+      navigate(`/workout/${id}/select-exercise/${workoutExercise.muscleGroupId}`);
+    } else if (id) {
+      navigate(`/workout/${id}`);
+    } else {
+      navigate('/');
+    }
+  };
+
   const completeExercise = async () => {
-    // ¡Ya no necesitamos limpiar nada en la base de datos!
     await db.workoutExercises.update(workoutExerciseId!, { completed: true });
-    navigate(`/workout/${id}`); 
+    // Navegamos de vuelta a la selección de ejercicios del mismo músculo para ver el estado completado
+    if (id && workoutExercise?.muscleGroupId) {
+      saveWorkoutSession(id, `/workout/${id}/select-exercise/${workoutExercise.muscleGroupId}`);
+      navigate(`/workout/${id}/select-exercise/${workoutExercise.muscleGroupId}`);
+    } else if (id) {
+      saveWorkoutSession(id, `/workout/${id}`);
+      navigate(`/workout/${id}`);
+    } else {
+      navigate('/');
+    }
   };
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-md mx-auto pb-24 pt-4">
       <header className="flex items-center gap-4">
-        <button onClick={() => navigate(-1)} className="p-2 bg-slate-800 rounded-full text-slate-300 hover:bg-slate-700 hover:text-white transition-colors">
+        <button 
+          onClick={handleBack} 
+          className="p-2 bg-slate-800 rounded-full text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
+          title="Volver"
+        >
           <ArrowLeft size={24} />
         </button>
         <h1 className="text-xl font-bold text-white">{exercise?.name}</h1>

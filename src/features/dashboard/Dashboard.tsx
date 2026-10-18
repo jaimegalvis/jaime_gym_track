@@ -14,6 +14,7 @@ import {
 import { db } from "../../db/db";
 import { useNavigate } from "react-router-dom";
 import { WorkoutCalendar } from "./WorkoutCalendar";
+import { getWorkoutSession } from "../../utils/session";
 import type { WorkoutWithDetails } from "../../types";
 
 export type { WorkoutWithDetails };
@@ -163,6 +164,7 @@ export function Dashboard() {
 
   const visibleWorkouts = workouts ? workouts.slice(0, visibleCount) : [];
   const hasMore = workouts ? visibleCount < workouts.length : false;
+  const inProgressWorkout = workouts?.find((w) => !w.duration);
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-md mx-auto pb-10 pt-4">
@@ -184,20 +186,69 @@ export function Dashboard() {
         </button>
       </header>
 
-      {/* Botón Principal (Grande y fácil de tocar) */}
-      <section>
-        <button
-          onClick={() => navigate("/routines")}
-          className="w-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white rounded-3xl p-8 flex flex-col items-center justify-center gap-4 transition-all shadow-lg shadow-blue-900/30"
-        >
-          <div className="bg-white/20 p-5 rounded-full">
-            <Play fill="currentColor" size={40} className="ml-2" />
+      {/* Botón Principal o Tarjeta de Sesión en Curso */}
+      {inProgressWorkout ? (
+        <section className="bg-gradient-to-br from-blue-950 via-slate-800 to-slate-900 border-2 border-blue-500 rounded-3xl p-6 shadow-xl shadow-blue-950/50 flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <span className="text-xs bg-amber-500/20 text-amber-400 font-bold px-3 py-1 rounded-full flex items-center gap-1.5 border border-amber-500/40 shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+              ENTRENAMIENTO EN CURSO
+            </span>
+            <span className="text-xs text-slate-400">
+              {formatWorkoutDate(inProgressWorkout.date)}
+            </span>
           </div>
-          <span className="text-2xl font-bold tracking-wide">
-            Iniciar Entrenamiento
-          </span>
-        </button>
-      </section>
+
+          <div>
+            <h2 className="text-2xl font-bold text-white">
+              {inProgressWorkout.routineName || "Sesión activa"}
+            </h2>
+            {inProgressWorkout.muscles && inProgressWorkout.muscles.length > 0 && (
+              <p className="text-sm text-blue-300 mt-1">
+                {inProgressWorkout.muscles.join(" • ")}
+              </p>
+            )}
+          </div>
+
+          <button
+            onClick={() => {
+              const session = getWorkoutSession();
+              if (session && session.workoutId === inProgressWorkout.id && session.path) {
+                navigate(session.path);
+              } else {
+                navigate(`/workout/${inProgressWorkout.id}`);
+              }
+            }}
+            className="w-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-bold py-4 px-6 rounded-2xl flex items-center justify-center gap-3 shadow-lg shadow-blue-900/40 transition-all text-base"
+          >
+            <Play fill="currentColor" size={20} />
+            <span>Continuar donde lo dejaste</span>
+          </button>
+
+          <div className="flex justify-center">
+            <button
+              onClick={() => navigate("/routines")}
+              className="text-xs text-slate-400 hover:text-slate-300 underline py-0.5"
+            >
+              ¿Deseas iniciar una rutina diferente?
+            </button>
+          </div>
+        </section>
+      ) : (
+        <section>
+          <button
+            onClick={() => navigate("/routines")}
+            className="w-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white rounded-3xl p-8 flex flex-col items-center justify-center gap-4 transition-all shadow-lg shadow-blue-900/30"
+          >
+            <div className="bg-white/20 p-5 rounded-full">
+              <Play fill="currentColor" size={40} className="ml-2" />
+            </div>
+            <span className="text-2xl font-bold tracking-wide">
+              Iniciar Entrenamiento
+            </span>
+          </button>
+        </section>
+      )}
 
       <section>
         <button

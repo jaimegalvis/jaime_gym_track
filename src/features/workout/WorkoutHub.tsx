@@ -1,11 +1,20 @@
+import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../db/db';
-import { ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, ChevronRight } from 'lucide-react';
+import { saveWorkoutSession, clearWorkoutSession } from '../../utils/session';
 
 export function WorkoutHub() {
   const { id } = useParams();
   const navigate = useNavigate();
+
+  // Guardamos la sesión activa para que el usuario pueda recuperarla de inmediato
+  useEffect(() => {
+    if (id) {
+      saveWorkoutSession(id, `/workout/${id}`);
+    }
+  }, [id]);
 
   // Obtenemos todos los datos necesarios para esta sesión de entrenamiento
   const data = useLiveQuery(async () => {
@@ -18,13 +27,17 @@ export function WorkoutHub() {
     const routineGroups = await db.routineGroups.where('routineId').equals(workout.routineId || '').toArray();
     const muscleGroups = await db.muscleGroups.toArray();
     const workoutExercises = await db.workoutExercises.where('workoutId').equals(id).toArray();
+    const weIds = workoutExercises.map(we => we.id);
+    const sets = weIds.length > 0
+      ? await db.sets.where('workoutExerciseId').anyOf(weIds).toArray()
+      : [];
 
-    return { workout, routine, routineGroups, muscleGroups, workoutExercises };
+    return { workout, routine, routineGroups, muscleGroups, workoutExercises, sets };
   }, [id]);
 
   if (!data) return <div className="text-slate-400 p-6 text-center mt-10 animate-pulse">Cargando entrenamiento...</div>;
 
-  const { workout, routine, routineGroups, muscleGroups, workoutExercises } = data;
+  const { workout, routine, routineGroups, muscleGroups, workoutExercises, sets } = data;
 
   // Cálculos de progreso total
   const totalExercisesTarget = routineGroups?.reduce((acc, rg) => acc + rg.exerciseCount, 0) || 0;
@@ -51,6 +64,9 @@ export function WorkoutHub() {
       duration: durationInSeconds
     });
 
+    // Limpiamos la sesión activa guardada
+    clearWorkoutSession();
+
     // C. Navegar al resumen
     navigate(`/history/${workout.id}`, { replace: true });
   };
@@ -62,6 +78,7 @@ export function WorkoutHub() {
         <button 
           onClick={() => navigate('/')} 
           className="p-2 bg-slate-800 rounded-full text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
+          title="Volver al inicio"
         >
           <ArrowLeft size={24} />
         </button>
@@ -77,16 +94,25 @@ export function WorkoutHub() {
         
         {routineGroups?.map((rg) => {
           const muscle = muscleGroups.find(m => m.id === rg.muscleGroupId);
-          const completedForThisMuscle = workoutExercises.filter(we => we.muscleGroupId === rg.muscleGroupId && we.completed).length;
+          const exercisesForThisMuscle = workoutExercises.filter(we => we.muscleGroupId === rg.muscleGroupId);
+          const completedForThisMuscle = exercisesForThisMuscle.filter(we => we.completed).length;
           const isFullyCompleted = completedForThisMuscle >= rg.exerciseCount;
+          // Solo se considera en progreso si hay ejercicios con al menos 1 serie registrada
+          const hasExerciseWithSets = exercisesForThisMuscle.some(
+            we => !we.completed && sets.some(s => s.workoutExerciseId === we.id)
+          );
+          const isInProgress = !isFullyCompleted && (completedForThisMuscle > 0 || hasExerciseWithSets);
 
           return (
             <button
               key={rg.id}
-              // onClick={() => navigate(`/workout/${id}/muscle/${rg.muscleGroupId}`)}
               onClick={() => navigate(`/workout/${id}/select-exercise/${rg.muscleGroupId}`)}
-              className={`p-5 rounded-3xl flex items-center justify-between transition-colors shadow-sm ${
-                isFullyCompleted ? 'bg-green-900/20 border border-green-900/50' : 'bg-slate-800 hover:bg-slate-700 active:bg-slate-700'
+              className={`p-5 rounded-3xl flex items-center justify-between transition-all shadow-sm ${
+                isFullyCompleted
+                  ? 'bg-green-900/20 border border-green-900/50 hover:bg-green-900/30'
+                  : isInProgress
+                  ? 'bg-slate-800 border-2 border-amber-500/80 shadow-md shadow-amber-950/30 hover:bg-slate-700 active:bg-slate-700'
+                  : 'bg-slate-800 border border-transparent hover:bg-slate-700 active:bg-slate-700'
               }`}
             >
               <div className="flex items-center gap-3">
@@ -95,10 +121,26 @@ export function WorkoutHub() {
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className={`text-sm ${isFullyCompleted ? 'text-green-500 font-bold' : 'text-slate-400'}`}>
+                {isInProgress && (
+                  <span className="text-xs bg-amber-500/20 text-amber-400 font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 border border-amber-500/40 shadow-sm">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                    En progreso
+                  </span>
+                )}
+                <span className={`text-sm ${
+                  isFullyCompleted
+                    ? 'text-green-500 font-bold'
+                    : isInProgress
+                    ? 'text-amber-400 font-bold'
+                    : 'text-slate-400'
+                }`}>
                   {completedForThisMuscle}/{rg.exerciseCount}
                 </span>
-                {isFullyCompleted && <CheckCircle2 size={20} className="text-green-500" />}
+                {isFullyCompleted ? (
+                  <CheckCircle2 size={20} className="text-green-500" />
+                ) : (
+                  <ChevronRight size={18} className={isInProgress ? 'text-amber-400' : 'text-slate-400'} />
+                )}
               </div>
             </button>
           );
