@@ -25,12 +25,19 @@ export interface RoutineGroup {
 
 export interface Workout {
   id: string;
-  routineId: string;
+  routineId?: string;
+  name?: string;
   date: string;
-  startTime: number;
+  startTime?: number;
   endTime?: number;
   duration?: number;
 }
+
+export interface WorkoutWithDetails extends Workout {
+  routineName: string;
+  muscles: string[];
+}
+
 
 export interface WorkoutExercise {
   id: string;
