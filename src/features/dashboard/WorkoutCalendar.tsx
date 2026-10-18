@@ -7,8 +7,11 @@ import {
   Clock,
   Dumbbell,
   Play,
+  Trash2,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { deleteWorkout } from '../../db/db';
+import { getWorkoutSession, clearWorkoutSession } from '../../utils/session';
 import type { WorkoutWithDetails } from './Dashboard';
 
 interface WorkoutCalendarProps {
@@ -105,6 +108,26 @@ export function WorkoutCalendar({ workouts }: WorkoutCalendarProps) {
       month: 'long',
     });
     return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+  };
+
+  const handleDeleteWorkout = async (e: React.MouseEvent, workout: WorkoutWithDetails) => {
+    e.stopPropagation();
+    const formatted = formatSelectedDateTitle(workout.date);
+    const confirmed = window.confirm(
+      `¿Deseas eliminar el entrenamiento "${workout.routineName || 'Entrenamiento'}" del ${formatted}?\n\nEsta acción eliminará permanentemente la sesión y todas sus series.`
+    );
+    if (!confirmed) return;
+
+    try {
+      await deleteWorkout(workout.id);
+      const session = getWorkoutSession();
+      if (session && session.workoutId === workout.id) {
+        clearWorkoutSession();
+      }
+    } catch (err) {
+      console.error('Error al eliminar entrenamiento:', err);
+      alert('Hubo un error al intentar eliminar el entrenamiento.');
+    }
   };
 
   const isCurrentMonthView =
@@ -274,9 +297,10 @@ export function WorkoutCalendar({ workouts }: WorkoutCalendarProps) {
         ) : (
           <div className="flex flex-col gap-2.5">
             {selectedDayWorkouts.map((workout) => (
-              <button
+              <div
                 key={workout.id}
-                type="button"
+                role="button"
+                tabIndex={0}
                 onClick={() => {
                   if (workout.duration) {
                     navigate(`/history/${workout.id}`);
@@ -284,9 +308,18 @@ export function WorkoutCalendar({ workouts }: WorkoutCalendarProps) {
                     navigate(`/workout/${workout.id}`);
                   }
                 }}
-                className="w-full bg-slate-900/70 hover:bg-slate-700/80 p-4 rounded-2xl flex items-center justify-between text-left transition-colors border border-slate-700/50 group"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    if (workout.duration) {
+                      navigate(`/history/${workout.id}`);
+                    } else {
+                      navigate(`/workout/${workout.id}`);
+                    }
+                  }
+                }}
+                className="w-full bg-slate-900/70 hover:bg-slate-700/80 p-4 rounded-2xl flex items-center justify-between text-left transition-colors border border-slate-700/50 group cursor-pointer"
               >
-                <div className="flex flex-col gap-1 pr-2">
+                <div className="flex flex-col gap-1 pr-2 flex-1">
                   <span className="font-semibold text-white text-base group-hover:text-blue-300 transition-colors">
                     {workout.routineName || 'Entrenamiento'}
                   </span>
@@ -329,10 +362,22 @@ export function WorkoutCalendar({ workouts }: WorkoutCalendarProps) {
                   )}
                 </div>
 
-                <div className="bg-slate-800 p-2 rounded-full shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                  <ArrowIcon size={18} className="text-slate-300 group-hover:text-white" />
+                <div className="flex items-center gap-1 shrink-0">
+                  <button
+                    type="button"
+                    onClick={(e) => handleDeleteWorkout(e, workout)}
+                    className="p-2.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 active:bg-red-500/20 rounded-xl transition-all"
+                    title="Eliminar este entrenamiento"
+                    aria-label="Eliminar entrenamiento"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+
+                  <div className="bg-slate-800 p-2 rounded-full shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                    <ArrowIcon size={18} className="text-slate-300 group-hover:text-white" />
+                  </div>
                 </div>
-              </button>
+              </div>
             ))}
           </div>
         )}

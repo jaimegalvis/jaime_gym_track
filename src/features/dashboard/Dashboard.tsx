@@ -10,11 +10,12 @@ import {
   CalendarDays,
   Dumbbell,
   Loader2,
+  Trash2,
 } from "lucide-react";
-import { db } from "../../db/db";
+import { db, deleteWorkout } from "../../db/db";
 import { useNavigate } from "react-router-dom";
 import { WorkoutCalendar } from "./WorkoutCalendar";
-import { getWorkoutSession } from "../../utils/session";
+import { getWorkoutSession, clearWorkoutSession } from "../../utils/session";
 import type { WorkoutWithDetails } from "../../types";
 
 export type { WorkoutWithDetails };
@@ -165,6 +166,26 @@ export function Dashboard() {
   const visibleWorkouts = workouts ? workouts.slice(0, visibleCount) : [];
   const hasMore = workouts ? visibleCount < workouts.length : false;
   const inProgressWorkout = workouts?.find((w) => !w.duration);
+
+  const handleDeleteWorkout = async (e: React.MouseEvent, workout: WorkoutWithDetails) => {
+    e.stopPropagation();
+    const formattedDate = formatWorkoutDate(workout.date);
+    const confirmed = window.confirm(
+      `¿Deseas eliminar el entrenamiento "${workout.routineName || "Entrenamiento"}" del ${formattedDate}?\n\nEsta acción eliminará permanentemente la sesión y todas sus series.`
+    );
+    if (!confirmed) return;
+
+    try {
+      await deleteWorkout(workout.id);
+      const session = getWorkoutSession();
+      if (session && session.workoutId === workout.id) {
+        clearWorkoutSession();
+      }
+    } catch (err) {
+      console.error("Error al eliminar entrenamiento:", err);
+      alert("Hubo un error al intentar eliminar el entrenamiento.");
+    }
+  };
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-md mx-auto pb-10 pt-4">
@@ -319,18 +340,27 @@ export function Dashboard() {
             ) : (
               <>
                 {visibleWorkouts.map((workout, index) => (
-                  <button
+                  <div
                     key={workout.id}
+                    role="button"
+                    tabIndex={0}
                     onClick={() => {
                       if (workout.duration) {
-                        // Si tiene duración, ya terminó: vamos al resumen histórico
                         navigate(`/history/${workout.id}`);
                       } else {
-                        // Si no tiene duración, sigue en progreso: volvemos a la sesión activa
                         navigate(`/workout/${workout.id}`);
                       }
                     }}
-                    className={`flex items-center justify-between p-5 text-left hover:bg-slate-700 active:bg-slate-700 transition-colors group ${
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        if (workout.duration) {
+                          navigate(`/history/${workout.id}`);
+                        } else {
+                          navigate(`/workout/${workout.id}`);
+                        }
+                      }
+                    }}
+                    className={`flex items-center justify-between p-5 text-left hover:bg-slate-700/60 active:bg-slate-700 transition-colors group cursor-pointer ${
                       index !== visibleWorkouts.length - 1
                         ? "border-b border-slate-700/50"
                         : ""
@@ -381,10 +411,22 @@ export function Dashboard() {
                       )}
                     </div>
 
-                    <div className="bg-slate-700 p-2 rounded-full shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                      <ChevronRight size={20} className="text-slate-300 group-hover:text-white" />
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        type="button"
+                        onClick={(e) => handleDeleteWorkout(e, workout)}
+                        className="p-2.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 active:bg-red-500/20 rounded-xl transition-all"
+                        title="Eliminar este entrenamiento"
+                        aria-label="Eliminar entrenamiento"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+
+                      <div className="bg-slate-700 p-2 rounded-full group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                        <ChevronRight size={18} className="text-slate-300 group-hover:text-white" />
+                      </div>
                     </div>
-                  </button>
+                  </div>
                 ))}
 
                 {/* Elemento observador para scroll infinito */}

@@ -146,3 +146,14 @@ export async function seedDatabase() {
   await db.routines.bulkPut(routines);
   await db.routineGroups.bulkPut(routineGroups);
 }
+
+// 4. Función para eliminar un entrenamiento y toda su información relacionada
+export async function deleteWorkout(workoutId: string): Promise<void> {
+  const exercises = await db.workoutExercises.where('workoutId').equals(workoutId).toArray();
+  const exerciseIds = exercises.map((e) => e.id);
+  if (exerciseIds.length > 0) {
+    await db.sets.where('workoutExerciseId').anyOf(exerciseIds).delete();
+  }
+  await db.workoutExercises.where('workoutId').equals(workoutId).delete();
+  await db.workouts.delete(workoutId);
+}
