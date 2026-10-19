@@ -239,6 +239,8 @@ export function ActiveExercise() {
               <input
                 type="number"
                 step="0.1"
+                inputMode="decimal"
+                pattern="[0-9]*[.,]?[0-9]*"
                 defaultValue={set.weight || ''}
                 onBlur={(e) =>
                   db.sets.update(set.id, { weight: Number(e.target.value) })
@@ -255,6 +257,8 @@ export function ActiveExercise() {
             {/* Input de repeticiones */}
             <input
               type="number"
+              inputMode="numeric"
+              pattern="[0-9]*"
               defaultValue={set.reps || ''}
               onBlur={(e) =>
                 db.sets.update(set.id, { reps: Number(e.target.value) })
@@ -306,6 +310,8 @@ export function ActiveExercise() {
               <input
                 type="number"
                 step="0.1"
+                inputMode="decimal"
+                pattern="[0-9]*[.,]?[0-9]*"
                 value={draftWeight}
                 onChange={(e) =>
                   setDraftWeight(e.target.value === '' ? '' : Number(e.target.value))
@@ -329,6 +335,8 @@ export function ActiveExercise() {
             {/* Input de repeticiones del borrador */}
             <input
               type="number"
+              inputMode="numeric"
+              pattern="[0-9]*"
               value={draftReps}
               onChange={(e) =>
                 setDraftReps(e.target.value === '' ? '' : Number(e.target.value))
